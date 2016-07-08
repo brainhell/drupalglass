@@ -1,0 +1,63 @@
+name = Glazed
+description = SooperThemes Premium Framework Theme.
+core = 7.x
+version = 7.x-2.410
+base theme = bootstrap
+
+; Based on //www.drupal.org/sandbox/BrianDanin/2116345
+
+; Regions
+regions[navigation]     = 'Navigation'
+regions[secondary_header]     = 'Secondary Header'
+regions[slider]         = 'Hero Region'
+regions[header]         = 'Page Title'
+regions[highlighted]    = 'Highlighted'
+regions[help]           = 'Help'
+regions[content_top]    = 'Content Top'
+regions[content]        = 'Content'
+regions[content_bottom] = 'Content Bottom'
+regions[sidebar_first]  = 'Primary'
+regions[sidebar_second] = 'Secondary'
+regions[footer]         = 'Footer'
+
+; Stylesheets
+stylesheets[all][]      = css/glazed.css
+scripts[]               = js/vendor/classie.js
+scripts[]               = js/vendor/modernizr-custom.js
+scripts[]               = js/glazed-mobile-nav.js
+scripts[]               = js/glazed.js
+
+settings[gutter_horizontal] = 30
+settings[gutter_horizontal_mobile] = 30
+settings[gutter_vertical] = 30
+settings[gutter_vertical_mobile] = 30
+settings[layout_max_width] = 1170
+settings[sticky_footer] = 1
+settings[menu_hover] = text
+settings[menu_type] = uppercase
+
+; Bootstrap Forms
+
+; Bootstap Settings
+; --------------
+
+
+settings[bootstrap_tooltip_placement] = 'auto top'
+
+settings[bootstrap_cdn_provider] = 'jsdelivr'
+; Removing https from urls to prevent mod_security problems
+; https://www.drupal.org/node/2642582
+settings[bootstrap_cdn_custom_css] = '//cdn.jsdelivr.net/bootstrap/3.3.5/css/bootstrap.css'
+settings[bootstrap_cdn_custom_css_min] = '//cdn.jsdelivr.net/bootstrap/3.3.5/css/bootstrap.min.css'
+settings[bootstrap_cdn_custom_js] = '//cdn.jsdelivr.net/bootstrap/3.3.5/js/bootstrap.js'
+settings[bootstrap_cdn_custom_js_min] = '//cdn.jsdelivr.net/bootstrap/3.3.5/js/bootstrap.min.js'
+settings[bootstrap_cdn_jsdelivr_version] = '3.3.5'
+
+settings[jquery_update_jquery_version] = 2.1
+settings[stlink] = 1
+; Information added by Drupal.org packaging script on 2016-05-20
+version = "7.x-2.410"
+core = "7.x"
+project = "glazed_free"
+datestamp = "1463745842"
+

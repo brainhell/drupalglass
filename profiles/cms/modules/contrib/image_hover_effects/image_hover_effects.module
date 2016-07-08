@@ -1,0 +1,119 @@
+<?php
+
+/**
+ * @file
+ * Main file of Image Class module.
+ */
+
+/**
+ * Implements hook_field_formatter_info_alter().
+ */
+function image_hover_effects_field_formatter_info_alter(&$info) {
+  $info['image']['settings']['image_hover_effects'] = '';
+}
+
+/**
+ * Implements hook_field_formatter_settings_form_alter().
+ */
+function image_hover_effects_field_formatter_settings_form_alter(&$settings_form, $context) {
+  $display = $context['instance']['display'][$context['view_mode']];
+  $settings = $display['settings'];
+
+  if ($context['instance']['display'][$context['view_mode']]['type'] == 'image') {
+    $settings_form['image_hover_effects'] = array(
+      '#title' => t('Image Hover Effect'),
+      '#type' => 'select',
+      '#default_value' => ($settings['image_hover_effects'] !== null) ? $settings['image_hover_effects'] : 0,
+      '#options' => array(
+        0 => t('None'),
+        'zoom' => t('Zoom'),
+        'default' => t('Overlay'),
+        'fade_in' => t('Overlay fade in'),
+        'zoom_in' => t('Overlay zoom in'),
+        'fade_in_down' => t('Overlay fade in down'),
+        'fade_in_up' => t('Overlay fade in up'),
+        'fade_in_left' => t('Overlay fade in left'),
+        'fade_in_right' => t('Overlay fade in right'),
+      ),
+    );
+
+    $settings_form['image_hover_effects_data'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Hover Effect Content'),
+      '#default_value' => ($settings['image_hover_effects_data'] !== null) ? $settings['image_hover_effects_data'] : '+',
+      '#size' => 12,
+      '#maxlength' => 128,
+        '#states' => array(
+          'visible' => array(
+          ':input[name="options[settings][image_hover_effects]"]' => array('!value' => '0'),
+          ),
+        ),
+    );
+  }
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary_alter().
+ */
+function image_hover_effects_field_formatter_settings_summary_alter(&$summary, $context) {
+  $display = $context['instance']['display'][$context['view_mode']];
+  $settings = $display['settings'];
+
+  if ($context['instance']['display'][$context['view_mode']]['type'] == 'image') {
+    if (isset($settings['image_hover_effects']) && $settings['image_hover_effects']) {
+      $summary .= '<br />' . t('Class: @class', array('@class' => $settings['image_hover_effects']));
+    }
+  }
+}
+
+/**
+ * Implements hook_field_attach_view_alter().
+ */
+function image_hover_effects_field_attach_view_alter(&$output, $context) {
+  foreach (element_children($output) as $field_name) {
+    $element = &$output[$field_name];
+
+    $view_modes = field_view_mode_settings($element['#entity_type'], $element['#bundle']);
+
+    // Check whether set view mode has custom settings.
+    if (isset($view_modes[$context['view_mode']]) && !$view_modes[$context['view_mode']]['custom_settings']) {
+      $context['view_mode'] = 'default';
+    }
+
+    $instance = field_info_instance($element['#entity_type'], $field_name, $element['#bundle']);
+
+    // Check whether view mode exists in the field instance.
+    if (isset($instance['display'][$context['view_mode']])) {
+      $display = $instance['display'][$context['view_mode']];
+    }
+    // If no view mode was specified it should be set to '_custom'
+    // like in field_view_field().
+    elseif ($context['view_mode'] == '_custom' && is_array($context['display'])) {
+      $display = $context['display'];
+    }
+    // Otherwise we use the 'default' view mode.
+    else {
+      $display = $instance['display']['default'];
+    }
+
+    $settings = $display['settings'];
+    $effect = isset($settings['image_hover_effects']) ? 'ihe-overlay--' . $settings['image_hover_effects'] : FALSE;
+    $hover_content = isset($settings['image_hover_effects_data']) ? $settings['image_hover_effects_data'] : '+';
+    if (isset($settings['image_hover_effects']) && $settings['image_hover_effects']) {
+      $effect_class = drupal_html_class('ihe-overlay--' . $settings['image_hover_effects']);
+      $classes = array('ihe-overlay', $effect_class);
+      drupal_add_css(drupal_get_path('module', 'image_hover_effects') . '/css/image-hover-effects.css', array('group' => CSS_DEFAULT, 'every_page' => FALSE));
+    }
+    else {
+      // Move on to the next child if 'class' setting is not available.
+      continue;
+    }
+
+    // Add 'class' setting to the attributes of all children elements.
+    foreach (element_children($element) as $delta) {
+      // Can only add classes to wrapping link not to image because image does
+      // not support the :after pseudo selector we use for overlays
+      $element[$delta]['#path']['options']['attributes'] = array('class' => $classes, 'data-hover' => $hover_content);
+    }
+  }
+}

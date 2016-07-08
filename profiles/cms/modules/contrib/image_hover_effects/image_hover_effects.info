@@ -1,0 +1,12 @@
+name = Image Hover Effects
+description = Extends the Image formatter by adding an option select and configure an image hover effect
+core = 7.x
+dependencies[] = image
+dependencies[] = field_formatter_settings
+
+; Information added by Drupal.org packaging script on 2015-10-17
+version = "7.x-1.5"
+core = "7.x"
+project = "image_hover_effects"
+datestamp = "1445089145"
+

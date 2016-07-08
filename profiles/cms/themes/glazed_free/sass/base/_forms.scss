@@ -1,0 +1,32 @@
+//
+// Author: Jurriaan Roelofs for SooperThemes. Copyright SooperThemes.
+//
+
+.form-text,
+.form-file,
+.form-textarea,
+input[type=text],
+input[type=file],
+input[type=text],
+textarea {
+  box-shadow: 3px 3px 7px rgba(0, 0, 0, 0.1) inset;
+  border-radius: 0;
+  background: $gray-lighter;
+  height: auto;
+  padding: 12px;
+}
+
+.input-group {
+  .form-text,
+  .form-file,
+  .form-textarea,
+  input[type=text],
+  input[type=file],
+  input[type=text] {
+    padding: 8px 12px 7px 12px;
+  }
+}
+
+.cke_editable_themed {
+  padding: 5px;
+}

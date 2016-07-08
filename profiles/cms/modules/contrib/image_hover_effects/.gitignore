@@ -1,0 +1,10 @@
+.idea
+node_modules
+deploy.sh
+
+# SASS Cache
+*.sass-cache*
+
+# OS specific things
+.DS_Store
+Thumbs.db

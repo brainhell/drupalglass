@@ -1,0 +1,324 @@
+<?php
+if (ini_get('memory_limit') != '-1' && ini_get('memory_limit') <= '196M') {
+  ini_set('memory_limit', '196M');
+}
+if (ini_get('max_execution_time') != '0' && ini_get('max_execution_time') <= '300') {
+  ini_set('max_execution_time', '300');
+  ini_set('max_input_time', '300');
+}
+ini_set('realpath_cache_size=', '2M');
+$max_nesting_level = ini_get('xdebug.max_nesting_level');
+if ($max_nesting_level > 0 && $max_nesting_level <= '200') {
+  ini_set('xdebug.max_nesting_level', 200);
+}
+
+// hook_install
+function cms_install() {
+  $t1 = (int) microtime(TRUE);
+  $cms_theme = 'glazed_free';
+
+  theme_enable(array($cms_theme));
+  variable_set('theme_default', $cms_theme);
+
+  $demopack = 'cms_core_content';
+  variable_set('cms_demopack', $demopack);
+
+  // Remove any status messages that might have been set. They are unneeded.
+  drupal_get_messages('status', TRUE);
+  drupal_get_messages('warning', TRUE);
+  variable_set('cms_installer_t2', microtime(TRUE));
+
+  $t2 = (int) microtime(TRUE);
+  $time = $t2 - $t1;
+  watchdog('cms.install', '@time sec  cms hook_install', array('@time' => $time));
+
+}
+
+//
+//  Helper functions
+//
+
+/**
+ * Custom replacement for final installation cleanup/setup function
+ *
+ * @param $install_state
+ *   An array of information about the current installation state.
+ *
+ * @return
+ *   A message informing the user that the installation is complete.
+ */
+function cms_install_finished(&$install_state) {
+  $t1 = (int) microtime(TRUE);
+
+  drupal_set_title(st('@drupal installation complete', array('@drupal' => drupal_install_profile_distribution_name())), PASS_THROUGH);
+  $messages = drupal_set_message();
+  $output = '<p>' . st('Congratulations, you installed @drupal!', array('@drupal' => drupal_install_profile_distribution_name())) . '</p>';
+  $output .= '<p>' . (isset($messages['error']) ? st('Review the messages above before visiting <a href="@url">your new site</a>.', array('@url' => url(''))) : st('<a href="@url">Visit your new site</a>.', array('@url' => url('')))) . '</p>';
+
+  // Flush all caches to ensure that any full bootstraps during the installer
+  // do not leave stale cached data, and that any content types or other items
+  // registered by the installation profile are registered correctly.
+  drupal_flush_all_caches();
+
+  // Remember the profile which was used.
+  variable_set('install_profile', drupal_get_profile());
+
+  // Installation profiles are always loaded last
+  db_update('system')
+    ->fields(array('weight' => 1000))
+    ->condition('type', 'module')
+    ->condition('name', drupal_get_profile())
+    ->execute();
+
+  // Cache a fully-built schema.
+  drupal_get_schema(NULL, TRUE);
+
+  // Run cron to populate update status tables (if available) so that users
+  // will be warned if they've installed an out of date Drupal version.
+  // Will also trigger indexing of profile-supplied content or feeds.
+  // ~ Jur disabled cron because it will try to index all imported nodes which takes too long
+  // drupal_cron_run();
+
+  // Remove any status messages that might have been set. They are unneeded.
+
+  variable_del('cms_installer_t1');
+  variable_del('cms_installer_t2');
+  drupal_get_messages('status', TRUE);
+  drupal_get_messages('warning', TRUE);
+
+  $t2 = (int) microtime(TRUE);
+  $time = $t2 - $t1;
+  watchdog('cms.install', 'cms/core install_finished took @time seconds', array('@time' => $time));
+  return $output;
+}
+
+
+/**
+ * Task callback: returns the form allowing the user to add example store content on install.
+ */
+function cms_import_demo_form() {
+  $max_execution_time = ini_get('max_execution_time');
+  $cms_theme = variable_get('cms_theme');
+  drupal_set_title(st('Select Demo Content'));
+  $t1 = (int) variable_get('cms_installer_t1');
+  $t2 = (int) variable_get('cms_installer_t2');
+  $time = $t2 - $t1;
+  $count_total= 0;
+  $delta = 70 - $time;
+  ($delta > 0) ? $adj = t('Faster') : $adj = t('Slower');
+  watchdog('cms.install', '@time sec core install batch', array('@time' => $time));
+
+  module_load_include('inc', 'features', 'features.admin');
+  $demo_content_modules = array_filter(_features_get_features_list(), "_cms_is_demo_content");
+
+  usort($demo_content_modules, function($a, $b) {
+    return (count($a->info['features']['uuid_node']) < count($b->info['features']['uuid_node'])) ? 1 : -1;
+  });
+
+  $import_options = array();
+  $count_array = array();
+  $disabled = FALSE;
+  foreach ($demo_content_modules as $module) {
+    $count =  count($module->info['features']['uuid_node']);
+    $count_total += $count;
+    $count_array[] = $count;
+    $import_options[$module->name] = '<strong>' . $module->info['name'] . '</strong> (' . $count . ' ' . t('Pages') . ')';
+  }
+  // unset CMS Contact default content because we make this mandatory in installation
+  if (isset($import_options['glazed_content_elements_examples_2'])) {
+    // changing order because elements 2 has to install after elements 1
+    $import_options = array('glazed_content_elements_examples_2' => $import_options['glazed_content_elements_examples_2']) + $import_options;
+  }
+  if ($cms_theme == 'glazed') {
+    // prevent conflict that kills theme settings css write.
+    unset($import_options['cms_core_content']);
+  }
+  // time spent over average time * 4 minutes * total pages over total pages in test runs
+  // 8 0.8 because it looke like we we were overestimating
+  $estimate = round($time / 70 * 4 * $count_total / 60 * 0.8);
+  if ($estimate < 2) { $estimate = 1; }
+
+  if ($estimate < 5) {
+    $default_import_options = array_keys($import_options);
+    $suggestion = t('Your server seems OK to import all demo content during installation. If you are in a hurry feel free to disable any demo imports.');
+  }
+  elseif (($estimate < 12) && ($max_execution_time > 120)) {
+    $default_import_options = array_keys($import_options);
+    $suggestion = t('Your server seems OK to import all demo content during installation. If you are in a hurry feel free to disable any demo imports to save time.');
+  }
+  // DANGER ZONE
+  elseif (($estimate < 8) && $max_execution_time < 120) {
+    $suggestion = t('Your server php max_execution_time is too low (@maxexec) to import all demo content during installation. No need to worry!', array('@maxexec' => $max_execution_time));
+  }
+  elseif ($estimate < 20) {
+    $default_import_options = array_keys($import_options);
+    $disabled = TRUE;
+    $i = 0;
+    foreach ($import_options as $key => $value) {
+      if (((strpos($key, 'cms_')) OR (strpos($key, '_theme_settings'))) === FALSE) {
+        $default_import_options[$i] = FALSE;
+      }
+      $i++;
+    }
+    $suggestion = t('Your server is too slow to import all demo content during installation. To prevent timeout problems we disabled some demo imports for you. No need to worry!');
+  } else {
+    $default_import_options = array();
+    $disabled = TRUE;
+    $suggestion = t('Your server is too slow to import any demo content during installation. To prevent timeout problems we disabled all demo imports for you. No need to worry!');
+  }
+
+  // $output = 'Memory limit: ' . ini_get('memory_limit') . ' Max execution time: ' . $max_execution_time . " \n";
+  $output = '<p>' . t('Your installation took your server @time seconds so far, @delta seconds @adj than average. To import all @count pages listed below would take about <strong>@est more minutes</strong>.', array('@time' => $time, '@delta' => abs($delta), '@adj' => $adj, '@count' => $count_total, '@est' => $estimate)) . '</p>';
+  $output .= '<p>' . $suggestion . ' <strong>' . t('You can easily import them from the Glazed Dashboard after the installation finishes.') . '</strong></p>';
+  $form['demo_imports'] = array(
+    '#type' => 'checkboxes',
+    '#options' => $import_options,
+    '#default_value' => $default_import_options,
+    '#disabled' => $disabled,
+    '#title' => t("Install Demo Content Packages"),
+    '#prefix' => $output,
+  );
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => st('Finish Installation'),
+    '#weight' => 15,
+  );
+  return $form;
+}
+
+/**
+ * Submit callback: creates the requested sample content.
+ */
+function cms_import_demo_form_submit(&$form, &$form_state) {
+  variable_set('cms_selected_imports', array_keys(array_filter($form_state['values']['demo_imports'])));
+}
+
+
+/**
+ * Task callback: uses Batch API to import modules based on user selection.
+ * Installs all demo store modules if requested, or any modules providing
+ * additional functionality to the base install.
+ *
+ * Any modules providing custom blocks should be enabled here, and not before
+ * (as an install profile dependency), because the themes are setup during
+ * cms_install(), which means region assignment can only happen
+ * after that.
+ */
+function cms_install_additional_modules() {
+  variable_set('cms_installer_tbatch2', microtime(TRUE));
+
+  $demopack = 'cms_core_content';
+  global $install_state;
+  $selected_imports = variable_get('cms_selected_imports', array());
+  $operations = array();
+  // Carbide Builder gives fatal error when installed in the core install batch operation
+  $modules = array('carbide_builder', 'revslider', 'glazed_config');
+  // The order of demo content imports is reversed to be sorted from small to large
+  // To give faster feedback to the user and maybe spend less validating/enabling in the end
+  $modules = array_merge($modules, array_reverse($selected_imports));
+
+  // Enable the selected modules.
+  foreach ($modules as $module) {
+    $operations[] = array('_cms_enable_module', array($module));
+  }
+  $operations[] = array('_cms_flush_caches');
+
+  $batch = array(
+    'title' => t('Importing Demo Content'),
+    'operations' => $operations,
+    'file' => drupal_get_path('profile', 'cms') . '/cms.batch_callbacks.inc',
+  );
+  watchdog('cms.install', 'starting batch install additional modules');
+
+  // variable_del('cms_selected_imports');
+  return $batch;
+}
+
+function _cms_get_node_path_for_uuid($uuid) {
+  module_load_include('module', 'uuid');
+  $nid = entity_get_id_by_uuid('node', array($uuid));
+  $system_path = 'node/' . array_pop($nid);
+  return $system_path;
+}
+
+/**
+ * array_filter() callback used to filter demo content features
+ */
+function _cms_is_demo_content ($feature) {
+  return (strpos($feature->name, '_content') OR (strpos($feature->name, '_theme_settings')));
+}
+
+/**
+ * Implements hook_requirements on behalf of cms_core ().
+ */
+function cms_core_requirements($phase) {
+  global $base_url;
+  $requirements = array();
+  // Ensure translations don't break at install time
+  $t = get_t();
+
+  // Test PHP memory_limit
+  $memory_limit = ini_get('memory_limit');
+  if ($memory_limit && $memory_limit != -1 && parse_size($memory_limit) < parse_size('96M')) {
+    $description = '';
+    if ($phase == 'install') {
+      $description = $t('Drupal CMS Bootstrap needs more memory to install. Increase your PHP memory limit to at least 96M to prevent errors in the installation process.');
+    }
+    elseif ($phase == 'update') {
+      $description = t('Drupal CMS Bootstrap needs more memory to install. Increase your PHP memory limit to at least 96M to prevent errors in the installation process.');
+    }
+    elseif ($phase == 'runtime') {
+      $description = $t('Depending on your configuration, Drupal can run with a %memory_limit PHP memory limit. However, a %memory_minimum_limit PHP memory limit or above is recommended, especially if your site uses additional custom or contributed modules.', array('%memory_limit' => $memory_limit, '%memory_minimum_limit' => '96M'));
+    }
+
+    if (!empty($description)) {
+      if ($php_ini_path = get_cfg_var('cfg_file_path')) {
+        $description .= ' ' . $t('Increase the memory limit by editing the memory_limit parameter in the file %configuration-file and then restart your web server (or contact your system administrator or hosting provider for assistance).', array('%configuration-file' => $php_ini_path));
+      }
+      else {
+        $description .= ' ' . $t('Contact your system administrator or hosting provider for assistance with increasing your PHP memory limit.');
+      }
+
+      $requirements['php_memory_limit'] = array(
+        'description' => $description,
+        'title' => $t('PHP memory limit'),
+        'severity' => REQUIREMENT_ERROR,
+        'value' => $memory_limit == -1 ? t('-1 (Unlimited)') : $memory_limit,
+      );
+    }
+  }
+
+  // Test PHP max_execution_time
+  $max_execution_time = ini_get('max_execution_time');
+  if ($max_execution_time !== 0 && ($max_execution_time) && $max_execution_time < 60) {
+    $description = '';
+    if ($phase == 'install') {
+      $description = $t('You are OK to proceed, Drupal can run with a %max_execution_time PHP max_execution_time. However, a %minimum_execution_time PHP max_execution_time or above is recommended, especially if you want to import demo content during installation.', array('%max_execution_time' => $max_execution_time, '%minimum_execution_time' => '60 seconds'));
+    }
+    elseif ($phase == 'update') {
+      $description = t('You are OK to proceed, Drupal can run with a %max_execution_time PHP max_execution_time. However, a %minimum_execution_time PHP max_execution_time or above is recommended, especially if you want to import demo content during installation.', array('%max_execution_time' => $max_execution_time, '%minimum_execution_time' => '60 seconds'));
+    }
+    elseif ($phase == 'runtime') {
+      $description = $t('Depending on your configuration, Drupal can run with a %max_execution_time PHP max_execution_time. However, a %minimum_execution_time PHP max_execution_time or above is recommended.', array('%max_execution_time' => $max_execution_time, '%minimum_execution_time' => '60 seconds'));
+    }
+
+    if (!empty($description)) {
+      if ($php_ini_path = get_cfg_var('cfg_file_path')) {
+        $description .= ' ' . $t('Increase the max_execution_time by editing the max_execution_time parameter in the file %configuration-file and then restart your web server (or contact your system administrator or hosting provider for assistance).', array('%configuration-file' => $php_ini_path));
+      }
+      else {
+        $description .= ' ' . $t('Contact your system administrator or hosting provider for assistance with increasing your PHP max_execution_time.');
+      }
+
+      $requirements['php_max_execution_time'] = array(
+        'description' => $description,
+        'title' => $t('PHP max_execution_time'),
+        'severity' => REQUIREMENT_WARNING,
+        'value' => $max_execution_time == -1 ? t('-1 (Unlimited)') : $max_execution_time,
+      );
+    }
+  }
+
+  return $requirements;
+}
