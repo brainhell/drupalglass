@@ -1,0 +1,212 @@
+<?php
+/**
+ * @file
+ * cms_blog_content.features.uuid_file_entity.inc
+ */
+
+/**
+ * Implements hook_uuid_features_default_file_entities().
+ */
+function cms_blog_content_uuid_features_default_file_entities() {
+  $files = array();
+
+  $files[] = array(
+    'filename' => 'LGhxuAbT5Wop4JYcrMpV_IMG_3808.jpg',
+    'uri' => 'public://blog-images/LGhxuAbT5Wop4JYcrMpV_IMG_3808.jpg',
+    'filemime' => 'image/jpeg',
+    'filesize' => 423581,
+    'status' => 1,
+    'type' => 'image',
+    'uuid' => '0072a0d6-2dea-4f28-b986-7b7a690db0ef',
+    'field_file_image_alt_text' => array(),
+    'field_file_image_title_text' => array(),
+    'rdf_mapping' => array(),
+    'metadata' => array(
+      'height' => 1280,
+      'width' => 1920,
+    ),
+    'alt' => '',
+    'title' => '',
+    'height' => 1280,
+    'width' => 1920,
+    'uuid_features_packaged_file_path' => 'assets/LGhxuAbT5Wop4JYcrMpV_IMG_3808.jpg',
+    'user_uuid' => '02eb5f9e-a86c-401d-ab0b-51b5e02ad5a7',
+  );
+  $files[] = array(
+    'filename' => 'photo-1444927714506-8492d94b4e3d.jpg',
+    'uri' => 'public://blog-images/photo-1444927714506-8492d94b4e3d.jpg',
+    'filemime' => 'image/jpeg',
+    'filesize' => 116648,
+    'status' => 1,
+    'type' => 'image',
+    'uuid' => '262ef9c9-245b-4dc8-932b-bae66fa4343c',
+    'field_file_image_alt_text' => array(),
+    'field_file_image_title_text' => array(),
+    'rdf_mapping' => array(),
+    'metadata' => array(
+      'height' => 1272,
+      'width' => 1920,
+    ),
+    'alt' => '',
+    'title' => '',
+    'height' => 1272,
+    'width' => 1920,
+    'uuid_features_packaged_file_path' => 'assets/photo-1444927714506-8492d94b4e3d.jpg',
+    'user_uuid' => '02eb5f9e-a86c-401d-ab0b-51b5e02ad5a7',
+  );
+  $files[] = array(
+    'filename' => 'photo-1436367050586-7c605120bf73.jpg',
+    'uri' => 'public://blog-images/photo-1436367050586-7c605120bf73.jpg',
+    'filemime' => 'image/jpeg',
+    'filesize' => 182518,
+    'status' => 1,
+    'type' => 'image',
+    'uuid' => '29a20c3d-4a71-42a5-aebf-2f7b657fd331',
+    'field_file_image_alt_text' => array(),
+    'field_file_image_title_text' => array(),
+    'rdf_mapping' => array(),
+    'metadata' => array(
+      'height' => 1328,
+      'width' => 1920,
+    ),
+    'alt' => '',
+    'title' => '',
+    'height' => 1328,
+    'width' => 1920,
+    'uuid_features_packaged_file_path' => 'assets/photo-1436367050586-7c605120bf73.jpg',
+    'user_uuid' => '02eb5f9e-a86c-401d-ab0b-51b5e02ad5a7',
+  );
+  $files[] = array(
+    'filename' => 'unsplash-pineapple.jpeg',
+    'uri' => 'public://blog-images/unsplash-pineapple.jpeg',
+    'filemime' => 'image/jpeg',
+    'filesize' => 163735,
+    'status' => 1,
+    'type' => 'image',
+    'uuid' => '4d781159-cdb5-48a9-9587-baa0e6a903c7',
+    'field_file_image_alt_text' => array(),
+    'field_file_image_title_text' => array(),
+    'rdf_mapping' => array(),
+    'metadata' => array(
+      'height' => 760,
+      'width' => 1140,
+    ),
+    'alt' => '',
+    'title' => '',
+    'height' => 760,
+    'width' => 1140,
+    'uuid_features_packaged_file_path' => 'assets/unsplash-pineapple.jpeg',
+    'user_uuid' => '02eb5f9e-a86c-401d-ab0b-51b5e02ad5a7',
+  );
+  $files[] = array(
+    'filename' => 'unsplash-flower-makro.jpg',
+    'uri' => 'public://blog-images/unsplash-flower-makro.jpg',
+    'filemime' => 'image/jpeg',
+    'filesize' => 240596,
+    'status' => 1,
+    'type' => 'image',
+    'uuid' => '592618fb-18f5-4816-b915-3c58f971b248',
+    'field_file_image_alt_text' => array(),
+    'field_file_image_title_text' => array(),
+    'rdf_mapping' => array(),
+    'metadata' => array(
+      'height' => 1442,
+      'width' => 1920,
+    ),
+    'alt' => '',
+    'title' => '',
+    'height' => 1442,
+    'width' => 1920,
+    'uuid_features_packaged_file_path' => 'assets/unsplash-flower-makro.jpg',
+    'user_uuid' => '02eb5f9e-a86c-401d-ab0b-51b5e02ad5a7',
+  );
+  $files[] = array(
+    'filename' => 'photo-1416862291207-4ca732144d83.jpg',
+    'uri' => 'public://blog-images/photo-1416862291207-4ca732144d83.jpg',
+    'filemime' => 'image/jpeg',
+    'filesize' => 273296,
+    'status' => 1,
+    'type' => 'image',
+    'uuid' => '699e5407-aa5e-415d-ba3d-c42fd00f2e35',
+    'field_file_image_alt_text' => array(),
+    'field_file_image_title_text' => array(),
+    'rdf_mapping' => array(),
+    'metadata' => array(
+      'height' => 1285,
+      'width' => 1920,
+    ),
+    'alt' => '',
+    'title' => '',
+    'height' => 1285,
+    'width' => 1920,
+    'uuid_features_packaged_file_path' => 'assets/photo-1416862291207-4ca732144d83.jpg',
+    'user_uuid' => '02eb5f9e-a86c-401d-ab0b-51b5e02ad5a7',
+  );
+  $files[] = array(
+    'filename' => 'photo-1446160657592-4782fb76fb99.jpg',
+    'uri' => 'public://blog-images/photo-1446160657592-4782fb76fb99.jpg',
+    'filemime' => 'image/jpeg',
+    'filesize' => 170774,
+    'status' => 1,
+    'type' => 'image',
+    'uuid' => '8091083b-c709-4267-b9f8-63aa6cf9b9ae',
+    'field_file_image_alt_text' => array(),
+    'field_file_image_title_text' => array(),
+    'rdf_mapping' => array(),
+    'metadata' => array(
+      'height' => 1282,
+      'width' => 1920,
+    ),
+    'alt' => '',
+    'title' => '',
+    'height' => 1282,
+    'width' => 1920,
+    'uuid_features_packaged_file_path' => 'assets/photo-1446160657592-4782fb76fb99.jpg',
+    'user_uuid' => '02eb5f9e-a86c-401d-ab0b-51b5e02ad5a7',
+  );
+  $files[] = array(
+    'filename' => 'photo-1439761414027-4f4ebeeda3a3.jpg',
+    'uri' => 'public://blog-images/photo-1439761414027-4f4ebeeda3a3.jpg',
+    'filemime' => 'image/jpeg',
+    'filesize' => 206365,
+    'status' => 1,
+    'type' => 'image',
+    'uuid' => '888116e1-1426-40f0-842e-83fdd7c247fa',
+    'field_file_image_alt_text' => array(),
+    'field_file_image_title_text' => array(),
+    'rdf_mapping' => array(),
+    'metadata' => array(
+      'height' => 1280,
+      'width' => 1920,
+    ),
+    'alt' => '',
+    'title' => '',
+    'height' => 1280,
+    'width' => 1920,
+    'uuid_features_packaged_file_path' => 'assets/photo-1439761414027-4f4ebeeda3a3.jpg',
+    'user_uuid' => '02eb5f9e-a86c-401d-ab0b-51b5e02ad5a7',
+  );
+  $files[] = array(
+    'filename' => 'OSASuBX1SGu4kb3ozvne_IMG_1088.jpg',
+    'uri' => 'public://blog-images/OSASuBX1SGu4kb3ozvne_IMG_1088.jpg',
+    'filemime' => 'image/jpeg',
+    'filesize' => 222439,
+    'status' => 1,
+    'type' => 'image',
+    'uuid' => 'b7c2f3a8-4ed7-4713-a361-7b1ea2adbb7a',
+    'field_file_image_alt_text' => array(),
+    'field_file_image_title_text' => array(),
+    'rdf_mapping' => array(),
+    'metadata' => array(
+      'height' => 1280,
+      'width' => 1920,
+    ),
+    'alt' => '',
+    'title' => '',
+    'height' => 1280,
+    'width' => 1920,
+    'uuid_features_packaged_file_path' => 'assets/OSASuBX1SGu4kb3ozvne_IMG_1088.jpg',
+    'user_uuid' => '02eb5f9e-a86c-401d-ab0b-51b5e02ad5a7',
+  );
+  return $files;
+}
